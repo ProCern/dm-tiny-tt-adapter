@@ -1,0 +1,7 @@
+spec/spec.opts
+spec/dm-tiny-tt-adapter_spec.rb
+spec/spec_helper.rb
+lib/dm-tiny-tt-adapter.rb
+Rakefile
+spec.tcb
+Manifest
