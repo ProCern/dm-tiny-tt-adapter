@@ -20,7 +20,7 @@ with_gem 'echoe' do
     p.author = "Paul Sadauskas"
     p.summary = "An Adapter for Datamapper for TokyoTyrant - Space Optimized"
     p.url = "http://github.com/paul/dm-tiny-tt-adapter"
-    p.runtime_dependencies = ['dm-core >= 0.10.0', 'json']
+    p.runtime_dependencies = ['dm-core >= 0.10.0', 'json', 'dm-tokyotyrant-adapter']
     p.development_dependencies = ['rspec', 'echoe', 'yard']
   end
 end
