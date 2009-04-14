@@ -27,7 +27,7 @@ module DataMapper::Adapters
           values = db.get(key)
           records << deserialize(values, metric_uuid) if values
         end
-        filter_records(records.flatten!, query)
+        filter_records(records.flatten, query)
       end
     end
 

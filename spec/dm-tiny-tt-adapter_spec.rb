@@ -50,6 +50,17 @@ describe DataMapper::Adapters::TinyTtAdapter do
 
   end
 
+  describe 'reading an empty database' do
+
+    it 'should not raise an error' do
+      @adapter.db { |db| db.vanish }
+      lambda {
+        Observation.all(:metric_uuid => @metric_uuid).should be_empty
+      }.should_not raise_error
+    end
+
+  end
+
   describe 'read' do
     before :all do
       @yest = @now - (24*60*60)
