@@ -18,16 +18,16 @@ module DataMapper::Adapters
     end
 
     def read(query)
-      metric_uuid, start_time, end_time = parse_query(query)
+      metric_id, start_time, end_time = parse_query(query)
 
       db do |db|
         records = []
         each_day(start_time, end_time) do |timestamp|
-          key = key(metric_uuid, timestamp)
+          key = key(metric_id, timestamp)
           values = db.get(key)
-          records << deserialize(values, metric_uuid) if values
+          records << deserialize(values, metric_id) if values
         end
-        filter_records(records.flatten, query)
+        query.filter_records(records.flatten)
       end
     end
 
@@ -46,7 +46,7 @@ module DataMapper::Adapters
 
       conditions = query.conditions
       conditions.operands.each do |op|
-        if op.property.name == :metric_uuid
+        if op.property.name == :metric_id
           uuid = op.value
         elsif op.property.name == :timestamp 
           case op
@@ -63,7 +63,7 @@ module DataMapper::Adapters
 
           end
         else
-          raise ArgumentError, "Can't query on #{op.property.type.inspect}"
+          raise ArgumentError, "Can't query on #{op.property.inspect}"
         end
       end
 
@@ -73,7 +73,7 @@ module DataMapper::Adapters
     def key(*args)
       if args.first.is_a?(DataMapper::Resource)
         resource = args.first
-        uuid, timestamp = resource.metric_uuid, resource.timestamp
+        uuid, timestamp = resource.metric_id, resource.timestamp
       else
         uuid, timestamp = *args
       end
@@ -84,10 +84,10 @@ module DataMapper::Adapters
       [resource.timestamp.to_i, resource.value].pack('If')
     end
 
-    def deserialize(string, metric_uuid)
+    def deserialize(string, metric_id)
       data = []
       data << string.slice!(0,8).unpack('If') until string.empty?
-      data.map { |d| {"timestamp" => Time.at(d[0]), "value" => d[1], "metric_uuid" => metric_uuid} }
+      data.map { |d| {"timestamp" => Time.at(d[0]), "value" => d[1], "metric_id" => metric_id} }
     end
 
     def save(db, key, value)

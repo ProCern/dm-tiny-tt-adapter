@@ -2,5 +2,6 @@ Manifest
 spec/spec.opts
 spec/dm-tiny-tt-adapter_spec.rb
 spec/spec_helper.rb
+dm-tiny-tt-adapter.gemspec
 lib/dm-tiny-tt-adapter.rb
 Rakefile
