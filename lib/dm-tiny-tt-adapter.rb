@@ -48,7 +48,9 @@ module DataMapper::Adapters
       conditions.operands.each do |op|
         if op.property.name == :metric_id
           uuid = op.value
-        elsif op.property.name == :timestamp 
+        end
+
+        if op.property.name == :timestamp 
           case op
           when DataMapper::Conditions::EqualToComparison
             start_time = end_time = op.value
@@ -57,13 +59,9 @@ module DataMapper::Adapters
           when DataMapper::Conditions::GreaterThanComparison,
                DataMapper::Conditions::GreaterThanOrEqualToComparison
             start_time = op.value
-
           else
             raise ArgumentError, "#{op.class.inspect} not supported"
-
           end
-        else
-          raise ArgumentError, "Can't query on #{op.property.inspect}"
         end
       end
 
@@ -81,12 +79,12 @@ module DataMapper::Adapters
     end
 
     def serialize(resource)
-      [resource.timestamp.to_i, resource.value].pack('If')
+      [resource.timestamp.to_i, resource.value].pack('Id')
     end
 
     def deserialize(string, metric_id)
       data = []
-      data << string.slice!(0,8).unpack('If') until string.empty?
+      data << string.slice!(0,12).unpack('Id') until string.empty?
       data.map { |d| {"timestamp" => Time.at(d[0]), "value" => d[1], "metric_id" => metric_id} }
     end
 

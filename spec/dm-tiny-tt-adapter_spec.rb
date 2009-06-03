@@ -15,7 +15,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
     class ::Observation
       include DataMapper::Resource
 
-      property :metric_uuid,  UUID,  :key => true
+      property :metric_id,  UUID,  :key => true
       property :timestamp,    Time,  :key => true
       property :value,        Float
 
@@ -41,7 +41,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
   describe 'create' do
 
     it 'should create a record' do
-      Observation.create(:metric_uuid => @metric_uuid,
+      Observation.create(:metric_id => @metric_uuid,
                          :timestamp => @now,
                          :value => 42.0)
 
@@ -55,7 +55,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
     it 'should not raise an error' do
       @adapter.db { |db| db.vanish }
       lambda {
-        Observation.all(:metric_uuid => @metric_uuid).should be_empty
+        Observation.all(:metric_id => @metric_uuid).should be_empty
       }.should_not raise_error
     end
 
@@ -67,17 +67,17 @@ describe DataMapper::Adapters::TinyTtAdapter do
       @tomm = @now + (24*60*60)
       3.times do |i|
         offset = i * 600
-        obs = Observation.create(:metric_uuid => @metric_uuid,
+        obs = Observation.create(:metric_id => @metric_uuid,
                                  :timestamp => @yest + offset,
                                  :value => offset.to_f)
         instance_variable_set(:"@yest_#{i+1}", obs)
 
-        obs = Observation.create(:metric_uuid => @metric_uuid,
+        obs = Observation.create(:metric_id => @metric_uuid,
                                  :timestamp => @now + offset,
                                  :value => offset.to_f)
         instance_variable_set(:"@today_#{i+1}", obs)
 
-        obs = Observation.create(:metric_uuid => @metric_uuid,
+        obs = Observation.create(:metric_id => @metric_uuid,
                                  :timestamp => @tomm + offset,
                                  :value => offset.to_f)
         instance_variable_set(:"@tomm_#{i+1}", obs)
@@ -91,7 +91,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
 
     describe 'equal' do
       before :all do
-        @result = Observation.all(:metric_uuid => @metric_uuid, :timestamp => @now)
+        @result = Observation.all(:metric_id => @metric_uuid, :timestamp => @now)
       end
 
       it 'should return a single datapoint' do
@@ -105,7 +105,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
 
     describe 'range' do
       before :all do
-        @result = Observation.all(:metric_uuid => @metric_uuid, :timestamp => (@yest..@now))
+        @result = Observation.all(:metric_id => @metric_uuid, :timestamp => (@yest..@now))
       end
 
       it 'should return the datapoints that match' do
@@ -123,7 +123,7 @@ describe DataMapper::Adapters::TinyTtAdapter do
 
     describe 'greater than or equal to' do
       before :all do
-        @result = Observation.all(:metric_uuid => @metric_uuid, :timestamp.gte => @yest)
+        @result = Observation.all(:metric_id => @metric_uuid, :timestamp.gte => @yest)
       end
 
       it 'should return the datapoints that match' do
