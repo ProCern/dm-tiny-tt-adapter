@@ -6,11 +6,11 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Paul Sadauskas"]
-  s.date = %q{2009-06-03}
+  s.date = %q{2009-06-10}
   s.description = %q{An Adapter for Datamapper for TokyoTyrant - Space Optimized}
   s.email = %q{}
-  s.extra_rdoc_files = ["lib/dm-tiny-tt-adapter.rb"]
-  s.files = ["Manifest", "spec/spec.opts", "spec/dm-tiny-tt-adapter_spec.rb", "spec/spec_helper.rb", "dm-tiny-tt-adapter.gemspec", "lib/dm-tiny-tt-adapter.rb", "Rakefile"]
+  s.extra_rdoc_files = ["lib/dm-tiny-tt-adapter.rb", "lib/dm-tiny-tt-adapter/variant.rb"]
+  s.files = ["Manifest", "spec/spec.opts", "spec/dm-tiny-tt-adapter_spec.rb", "spec/spec_helper.rb", "dm-tiny-tt-adapter.gemspec", "lib/dm-tiny-tt-adapter.rb", "lib/dm-tiny-tt-adapter/variant.rb", "Rakefile"]
   s.homepage = %q{http://github.com/paul/dm-tiny-tt-adapter}
   s.rdoc_options = ["--line-numbers", "--inline-source", "--title", "Dm-tiny-tt-adapter"]
   s.require_paths = ["lib"]
