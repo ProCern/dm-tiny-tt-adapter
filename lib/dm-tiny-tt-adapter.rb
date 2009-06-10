@@ -3,9 +3,13 @@ require 'dm-core'
 require 'dm-core/adapters/abstract_adapter'
 require 'dm-tokyotyrant-adapter'
 
+
 module DataMapper::Adapters
 
   class TinyTtAdapter < TokyoTyrantAdapter
+
+    NUMERIC_TYPE = 0x0
+    STRING_TYPE  = 0x1
 
     undef :update, :delete
 
@@ -25,7 +29,7 @@ module DataMapper::Adapters
         each_day(start_time, end_time) do |timestamp|
           key = key(metric_id, timestamp)
           values = db.get(key)
-          records << deserialize(values, metric_id) if values
+          records << deserialize(query.model, values, metric_id) if values
         end
         query.filter_records(records.flatten)
       end
@@ -46,18 +50,18 @@ module DataMapper::Adapters
 
       conditions = query.conditions
       conditions.operands.each do |op|
-        if op.property.name == :metric_id
+        if op.subject.name == :metric_id
           uuid = op.value
         end
 
-        if op.property.name == :timestamp 
+        if op.subject.name == :timestamp 
           case op
-          when DataMapper::Conditions::EqualToComparison
+          when DataMapper::Query::Conditions::EqualToComparison
             start_time = end_time = op.value
-          when DataMapper::Conditions::InclusionComparison
+          when DataMapper::Query::Conditions::InclusionComparison
             start_time, end_time = op.value.begin, op.value.end
-          when DataMapper::Conditions::GreaterThanComparison,
-               DataMapper::Conditions::GreaterThanOrEqualToComparison
+          when DataMapper::Query::Conditions::GreaterThanComparison,
+               DataMapper::Query::Conditions::GreaterThanOrEqualToComparison
             start_time = op.value
           else
             raise ArgumentError, "#{op.class.inspect} not supported"
@@ -79,13 +83,33 @@ module DataMapper::Adapters
     end
 
     def serialize(resource)
-      [resource.timestamp.to_i, resource.value].pack('Id')
+      type = case resource.value
+             when Numeric then NUMERIC_TYPE
+             else 
+               STRING_TYPE
+             end
+
+      timestamp = resource.timestamp.to_i
+      value = resource.value.to_s
+      length = value.length
+
+      [type, timestamp, length, value].pack('CIIa*')
     end
 
-    def deserialize(string, metric_id)
+    def deserialize(model, string, metric_id)
       data = []
-      data << string.slice!(0,12).unpack('Id') until string.empty?
-      data.map { |d| {"timestamp" => Time.at(d[0]), "value" => d[1], "metric_id" => metric_id} }
+      until string.empty?
+        type, time, len = string.slice!(0,9).unpack('CII')
+        value = string.slice!(0,len)
+        value = case type
+                when NUMERIC_TYPE then value.to_f
+                else 
+                  value
+                end
+
+        data << {"timestamp" => Time.at(time), "value" => value, "metric_id" => metric_id}
+      end
+      data
     end
 
     def save(db, key, value)
