@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Paul Sadauskas"]
-  s.date = %q{2009-06-10}
+  s.date = %q{2009-06-23}
   s.description = %q{An Adapter for Datamapper for TokyoTyrant - Space Optimized}
   s.email = %q{}
   s.extra_rdoc_files = ["lib/dm-tiny-tt-adapter.rb", "lib/dm-tiny-tt-adapter/variant.rb"]
@@ -26,6 +26,7 @@ Gem::Specification.new do |s|
       s.add_runtime_dependency(%q<dm-core>, [">= 0", "= 0.10.0"])
       s.add_runtime_dependency(%q<json>, [">= 0"])
       s.add_runtime_dependency(%q<dm-tokyotyrant-adapter>, [">= 0"])
+      s.add_runtime_dependency(%q<hitimes>, [">= 0"])
       s.add_development_dependency(%q<rspec>, [">= 0"])
       s.add_development_dependency(%q<echoe>, [">= 0"])
       s.add_development_dependency(%q<yard>, [">= 0"])
@@ -33,6 +34,7 @@ Gem::Specification.new do |s|
       s.add_dependency(%q<dm-core>, [">= 0", "= 0.10.0"])
       s.add_dependency(%q<json>, [">= 0"])
       s.add_dependency(%q<dm-tokyotyrant-adapter>, [">= 0"])
+      s.add_dependency(%q<hitimes>, [">= 0"])
       s.add_dependency(%q<rspec>, [">= 0"])
       s.add_dependency(%q<echoe>, [">= 0"])
       s.add_dependency(%q<yard>, [">= 0"])
@@ -41,6 +43,7 @@ Gem::Specification.new do |s|
     s.add_dependency(%q<dm-core>, [">= 0", "= 0.10.0"])
     s.add_dependency(%q<json>, [">= 0"])
     s.add_dependency(%q<dm-tokyotyrant-adapter>, [">= 0"])
+    s.add_dependency(%q<hitimes>, [">= 0"])
     s.add_dependency(%q<rspec>, [">= 0"])
     s.add_dependency(%q<echoe>, [">= 0"])
     s.add_dependency(%q<yard>, [">= 0"])
