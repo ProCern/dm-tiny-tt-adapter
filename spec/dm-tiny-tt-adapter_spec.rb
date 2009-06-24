@@ -8,6 +8,8 @@ DataMapper.setup(:default, :adapter   => 'tiny_tt',
                  :hostname  => 'localhost',
                  :port      => 1978)
 
+#DataMapper::Logger.new(STDOUT, 0)
+
 class Datapoint
   include DataMapper::Resource
 
@@ -18,7 +20,7 @@ end
 
 describe DataMapper::Adapters::TinyTtAdapter do
   before do
-    @metric_id = UUID.random_create.to_s
+    @metric_id = UUIDTools::UUID.random_create.to_s
     @now = Time.at(1244656800) # noon, june 10
   end
 

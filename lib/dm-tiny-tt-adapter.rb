@@ -3,6 +3,8 @@ require 'dm-core'
 require 'dm-core/adapters/abstract_adapter'
 require 'dm-tokyotyrant-adapter'
 
+require 'hitimes'
+
 
 module DataMapper::Adapters
 
@@ -22,17 +24,29 @@ module DataMapper::Adapters
     end
 
     def read(query)
+      total_timer  = Hitimes::TimedMetric.now("Total #read")
+      fetch_timer  = Hitimes::TimedMetric.new("Fetching from TokyoTyrant DB")
+      parse_timer  = Hitimes::TimedMetric.new("Parsing documents")
+      filter_timer = Hitimes::TimedMetric.new("Filtering records")
+
       metric_id, start_time, end_time = parse_query(query)
 
-      db do |db|
+      records = db do |db|
         records = []
         each_day(start_time, end_time) do |timestamp|
           key = key(metric_id, timestamp)
-          values = db.get(key)
-          records << deserialize(query.model, values, metric_id) if values
+          values = fetch_timer.measure { db.get(key) }
+          records << parse_timer.measure { deserialize(query.model, values, metric_id) } if values
         end
-        query.filter_records(records.flatten)
+        filter_timer.measure { query.filter_records(records.flatten) }
       end
+      total_timer.stop
+      
+      DataMapper.logger.info("TTAdapter read: %s: (%i..%i) %0.6f fetching, %0.6f parsing, %0.6f filtering, %0.6f total" % 
+                             [metric_id, start_time, end_time, 
+                               fetch_timer.sum, parse_timer.sum, filter_timer.sum, total_timer.sum])
+
+      records
     end
 
     protected
