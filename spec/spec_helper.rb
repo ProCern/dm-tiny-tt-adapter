@@ -7,3 +7,4 @@ require 'dm-tiny-tt-adapter/variant'
 
 require 'dm-core'
 
+require 'pp'

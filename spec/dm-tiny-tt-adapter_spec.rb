@@ -1,6 +1,7 @@
 require File.dirname(__FILE__) + '/spec_helper'
 
 require 'uuidtools'
+
 require 'dm-types/uuid'
 require 'dm-core/core_ext/symbol'
 
@@ -8,7 +9,7 @@ DataMapper.setup(:default, :adapter   => 'tiny_tt',
                  :hostname  => 'localhost',
                  :port      => 1978)
 
-#DataMapper::Logger.new(STDOUT, 0)
+DataMapper::Logger.new(STDOUT, 0)
 
 class Datapoint
   include DataMapper::Resource
@@ -67,10 +68,25 @@ describe DataMapper::Adapters::TinyTtAdapter do
 
     end
 
+    describe "multiple metrics" do
+      before do
+        @another_metric_id = UUIDTools::UUID.random_create.to_s
+        create_datapoint(:metric_id => @another_metric_id)
+
+        @result = Datapoint.all(:metric_id => [@metric_id, @another_metric_id],
+                                :timestamp => @now)
+      end
+
+      it "should be able to retrieve datapoints from both metrics" do
+        @result.should have(2).items
+      end
+
+    end
+
     describe "for a time range" do
       before do
         @dps = Datapoint.all(:metric_id => @metric_id,
-                             :timestamp => (@now-100)..(@now+100))
+                             :timestamp => [@now-100, @now+100])
       end
 
       it 'should find the datapoints within that range' do
@@ -85,7 +101,6 @@ describe DataMapper::Adapters::TinyTtAdapter do
       end
 
     end
-
 
   end
 

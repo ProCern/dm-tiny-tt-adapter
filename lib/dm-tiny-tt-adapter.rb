@@ -29,21 +29,23 @@ module DataMapper::Adapters
       parse_timer  = Hitimes::TimedMetric.new("Parsing documents")
       filter_timer = Hitimes::TimedMetric.new("Filtering records")
 
-      metric_id, start_time, end_time = parse_query(query)
+      metric_ids, start_time, end_time = parse_query(query)
 
       records = db do |db|
         records = []
-        each_day(start_time, end_time) do |timestamp|
-          key = key(metric_id, timestamp)
-          values = fetch_timer.measure { db.get(key) }
-          records << parse_timer.measure { deserialize(query.model, values, metric_id) } if values
+        metric_ids.each do |metric_id|
+          each_day(start_time, end_time) do |timestamp|
+            key = key(metric_id, timestamp)
+            values = fetch_timer.measure { db.get(key) }
+            records << parse_timer.measure { deserialize(query.model, values, metric_id) } if values
+          end
         end
         filter_timer.measure { query.filter_records(records.flatten) }
       end
       total_timer.stop
       
       DataMapper.logger.info("TTAdapter read: %s: (%i..%i) %0.6f fetching, %0.6f parsing, %0.6f filtering, %0.6f total" % 
-                             [metric_id, start_time, end_time, 
+                             [metric_ids.inspect, start_time, end_time, 
                                fetch_timer.sum, parse_timer.sum, filter_timer.sum, total_timer.sum])
 
       records
@@ -59,31 +61,36 @@ module DataMapper::Adapters
     end
 
     def parse_query(query)
-      uuid = nil
+      uuids = nil
       start_time = end_time = Time.now
 
       conditions = query.conditions
       conditions.operands.each do |op|
         if op.subject.name == :metric_id
-          uuid = op.value
-        end
-
-        if op.subject.name == :timestamp 
+          case value = op.value
+          when Array
+            uuids = value.map { |v| v.to_s }
+          else
+            uuids = [value.to_s]
+          end
+        elsif op.subject.name == :timestamp 
           case op
           when DataMapper::Query::Conditions::EqualToComparison
             start_time = end_time = op.value
           when DataMapper::Query::Conditions::InclusionComparison
-            start_time, end_time = op.value.begin, op.value.end
+            start_time, end_time = op.value[0], op.value[1]
           when DataMapper::Query::Conditions::GreaterThanComparison,
                DataMapper::Query::Conditions::GreaterThanOrEqualToComparison
             start_time = op.value
           else
             raise ArgumentError, "#{op.class.inspect} not supported"
           end
+        else
+          raise ArgumentError, "Can't query on #{op.subject.type.inspect}"
         end
       end
 
-      return uuid, start_time, end_time
+      return uuids, start_time, end_time
     end
 
     def key(*args)
@@ -132,7 +139,6 @@ module DataMapper::Adapters
         raise WriteError, db.errmsg(ecode)
       end
     end
-
 
   end
 
