@@ -40,7 +40,16 @@ module DataMapper::Adapters
             records << parse_timer.measure { deserialize(query.model, values, metric_id) } if values
           end
         end
-        filter_timer.measure { query.filter_records(records.flatten) }
+        records.flatten!
+        #filter_timer.measure { query.filter_records(records) }
+        filter_timer.measure {
+          records.delete_if { |r|
+            r["timestamp"] < start_time || r["timestamp"] > end_time
+          }
+
+          query.sort_records(records)
+          query.limit_records(records)
+        }
       end
       total_timer.stop
       

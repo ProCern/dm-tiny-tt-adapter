@@ -9,7 +9,7 @@ DataMapper.setup(:default, :adapter   => 'tiny_tt',
                  :hostname  => 'localhost',
                  :port      => 1978)
 
-DataMapper::Logger.new(STDOUT, 0)
+# DataMapper::Logger.new(STDOUT, 0)
 
 class Datapoint
   include DataMapper::Resource
@@ -90,7 +90,9 @@ describe DataMapper::Adapters::TinyTtAdapter do
       end
 
       it 'should find the datapoints within that range' do
-        @dps.should == [@min_ago, @current, @min_from_now]
+        @dps.should include(@min_ago)
+        @dps.should include(@current)
+        @dps.should include(@min_from_now)
       end
 
       it 'should not find datapoints outside the range' do
