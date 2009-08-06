@@ -22,7 +22,8 @@ end
 describe DataMapper::Adapters::TinyTtAdapter do
   before do
     @metric_id = UUIDTools::UUID.random_create.to_s
-    @now = Time.at(1244656800) # noon, june 10
+    now = Time.now.utc
+    @now = Time.utc(now.year, now.month, now.day, 12) # Not really "now", but noon today
   end
 
   after do
@@ -66,6 +67,18 @@ describe DataMapper::Adapters::TinyTtAdapter do
         Datapoint.get(@metric_id, @now-10).should be_nil
       end
 
+    end
+
+    describe "for no timestamp" do
+      it "should find all datapoints for today" do
+
+        dps = Datapoint.all(:metric_id => @metric_id)
+
+        dps.should include(@current)
+
+        dps.should_not include(@day_ago)
+        dps.should_not include(@day_from_now)
+      end
     end
 
     describe "multiple metrics" do

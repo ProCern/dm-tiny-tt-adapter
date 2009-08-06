@@ -6,7 +6,7 @@ Gem::Specification.new do |s|
 
   s.required_rubygems_version = Gem::Requirement.new(">= 1.2") if s.respond_to? :required_rubygems_version=
   s.authors = ["Paul Sadauskas"]
-  s.date = %q{2009-06-23}
+  s.date = %q{2009-08-03}
   s.description = %q{An Adapter for Datamapper for TokyoTyrant - Space Optimized}
   s.email = %q{}
   s.extra_rdoc_files = ["lib/dm-tiny-tt-adapter.rb", "lib/dm-tiny-tt-adapter/variant.rb"]

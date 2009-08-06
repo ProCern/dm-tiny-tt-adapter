@@ -41,14 +41,14 @@ module DataMapper::Adapters
           end
         end
         records.flatten!
-        #filter_timer.measure { query.filter_records(records) }
+
         filter_timer.measure {
           records.delete_if { |r|
             r["timestamp"] < start_time || r["timestamp"] > end_time
           }
 
-          query.sort_records(records)
-          query.limit_records(records)
+          records = query.sort_records(records)
+          records = query.limit_records(records)
         }
       end
       total_timer.stop
@@ -71,7 +71,11 @@ module DataMapper::Adapters
 
     def parse_query(query)
       uuids = nil
-      start_time = end_time = Time.now
+
+      # default from beginning of today to end of today
+      now = Time.now.utc
+      start_time = Time.utc(now.year, now.month, now.day)
+      end_time = Time.utc(now.year, now.month, now.day, 23, 59, 59)
 
       conditions = query.conditions
       conditions.operands.each do |op|
